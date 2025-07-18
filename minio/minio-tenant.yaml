@@ -1,21 +1,29 @@
-apiVersion: minio.min.io/v2
+apiVersion: operator.min.io/v4
 kind: Tenant
 metadata:
   name: minio
   namespace: minio
 spec:
-  credsSecret:
-    name: minio-creds
+  image: quay.io/minio/minio:RELEASE.2024-05-10T01-41-38Z
+  podManagementPolicy: Parallel
+  replicas: 1
   pools:
-    - servers: 1
-      volumesPerServer: 4
+    - name: pool-0
+      servers: 1
+      volumesPerServer: 1
       volumeClaimTemplate:
         metadata:
           name: data
         spec:
-          accessModes: ["ReadWriteOnce"]
+          accessModes:
+            - ReadWriteOnce
           resources:
             requests:
               storage: 10Gi
   mountPath: /export
   requestAutoCert: true
+  users:
+    - name: minio-user
+      secretRef:
+        name: minio-user-creds
+
